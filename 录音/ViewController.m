@@ -131,11 +131,12 @@
 {
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     //设置为播放和录音状态，以便可以在录制完之后播放录音
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
-    [audioSession setActive:YES error:nil];
+//  [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker error:nil];  //同时使用扬声器模式，拔插耳机同样有效
+    [audioSession setActive:YES error:nil]; //可以立刻激活设置
     
-    //从话筒(外音，扬声器)处播放，而不是从听筒处播放，听筒播放的声音非常小
-    [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    //从话筒(外音，扬声器)处播放，而不是从听筒处播放，听筒播放的声音非常小,上面已经设置了
+    // [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
     
     //从话筒(外音，扬声器)处播放，这个方法被上面的代替了 在ios6以后
 //    UInt32 audioRouteOverride = kAudioSessionOverrideAudioRoute_Speaker;
@@ -176,7 +177,7 @@
     [dicM setObject:@(1) forKey:AVNumberOfChannelsKey];
     //每个采样点位数,分为8、16、24、32
     [dicM setObject:@(16) forKey:AVLinearPCMBitDepthKey];
-    //是否使用浮点数采样
+    //是否使用浮点数采样，若数据需要成amr格式的请设置为NO
     [dicM setObject:@(NO) forKey:AVLinearPCMIsFloatKey];//这个设置非常重要, 不然转换的是杂音, 或者是声音很小
     [dicM setObject:@(NO) forKey:AVLinearPCMIsNonInterleaved];
     [dicM setObject:@(NO) forKey:AVLinearPCMIsBigEndianKey];
@@ -199,7 +200,7 @@
     NSError *error = nil;
     _audioRecorder = [[AVAudioRecorder alloc] initWithURL:wavURL settings:setting error:&error];
     _audioRecorder.delegate = self;
-    _audioRecorder.meteringEnabled = YES;//如果要监控声波则必须设置为YES
+    _audioRecorder.meteringEnabled = YES;//如果要监控声波则必须设置为YES，音波分贝为 -160~0
     if (error) {
         NSLog(@"创建录音机对象时发生错误：%@",error.localizedDescription);
         return nil;
